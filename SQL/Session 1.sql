@@ -48,6 +48,31 @@ alter table student modify student_name varchar(50);
 alter table student rename column student_name to name, add column phone bigint after name;
 
 desc student;
- 
+
+-- SINGLE ROW FUNCTIONS
+-- numeric functions
+-- round, truncate, ceil, floor, greatest, least, mod, pow
+-- string functions concat, upper, lower, instr, substr, reverse, length, trim, concat_ws -> concate with seperator, right, left, replace
+
+select substr("pes university", -2, 2);
+
+select trim(leading '%' from "%%%pes university%%%"); -- 
+select trim(trailing '%' from "%%%pes university%%%");
+select trim(both '%' from "%%%pes university%%%");
+
+select concat("fname", 'lname') as u_s; -- fnamelname
+select concat_ws(" ", 'name', 'john'); -- name john
+
+-- date functions
+-- curdate, curent_date, curtime, current_time, current_timestamp -> to get the current time
+-- extractable functions like day, dayofmonth, week, week of day, day of week
+-- modifiers - adddate, subdate
+-- distance extractor - datediff, period_diff
+-- formatters - date_format, str_to_date
+
+select str_to_date("23-Jan-2000", '%d-%M-%Y');
+
+-- MULTI ROW FUNCTIONS / AGGREGATE - count
+
 
  
