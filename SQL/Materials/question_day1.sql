@@ -114,6 +114,11 @@ CASE <input>
     ELSE <default expression> END 
 */
 
+select concat_ws(" ", first_name, last_name) as full_name, job_id, case
+when salary > 20000 then "High paid"
+when salary between 10000 and 20000 then "Medium Paid"
+when salary between 5000 and 9999 then "Under Paid"
+else "Least Paid" end as salary_grade from hr.employees;
 
 -- categorize employees based on their year of service <365 as less than 1 yr, <730 as 1-2 yrs <1095 as 2-3 yrs else more than 3 yrs 
 -- consider todays date as 2000-12-31.
