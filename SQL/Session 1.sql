@@ -1,4 +1,4 @@
- create database if not exists apr;
+ create database if not exists apr; -- apr denotes the branch April 
  use apr;
  create table if not exists student(sid int, name varchar(20), marks int);
  insert into student(sid, name, marks) values(1,"Sam", 40);
