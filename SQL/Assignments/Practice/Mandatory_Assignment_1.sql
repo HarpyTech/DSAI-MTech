@@ -5,10 +5,10 @@
 -- --------------------------------------------------------
 
 # Q1. Extract the Player_Id and Player_name of the players where the charisma value is null.
-
+select  Player_Id, Player_name from hr.new_cricket where Charisma is null;
  
 # Q2. Write a MySQL query to display all the NULL values in the column Charisma imputed with 0.
-
+select Player_Id, Player_name, runs, popularity, ifnull(Charisma, 0) as charisma from hr.new_cricket;
 
 -- --------------------------------------------------------
 # Dataset Used: churn1.csv 
@@ -16,35 +16,41 @@
 
 
 # Q3. Rename the table churn1 to “Churn_Details”.
-
+alter table hr.churn rename to hr.Churn_Details;
 
 # Q4. Write a query to create a new column new_Amount that contains the sum of TotalAmount and MonthlyServiceCharges.
-
+/* Method 1 - create table and update the column with data
+alter table hr.Churn_Details add New_Amount integer;
+update hr.Churn_Details set New_amount = TotalAmount + MonthlyServiceCharges; -- have to disable the safe sql mode
+*/
+-- add column along with data as generated column
+ALTER TABLE hr.churn_details ADD new_Amount float GENERATED ALWAYS AS (TotalAmount + MonthlyServiceCharges) STORED;
 
 
 # Q5. Rename column new_Amount to Amount.
-
+alter table hr.churn_details rename column New_amount to Amount;
 
 # Q6. Drop the column “Amount” from the table “Churn_Details”.
-
+alter table hr.churn_details drop Amount;
 
 # Q7. Write a query to extract the customerID, InternetConnection and gender 
 # from the table “Churn_Details ” where the value of the column “InternetConnection” has ‘i’ 
 # at the second position.
-
+select customerID, InternetConnection from hr.churn_details where InternetConnection like "_i%";
 
 
 # Q8. Find the records where the tenure is 6x, where x is any number.(107 Rows)
-
+select * from hr.churn_details where tenure  like "6_";
 
 
 #Q9. Write a query to display the player names in capital letter and arrange in alphabatical order along with the charisma, display 0 for whom the charisma value is NULL.
+select Player_name, ifnull(Charisma, 0) as charisma from hr.new_cricket order by player_name;
 
 
 
 # Pre-Requisites:
 # Step 1 : Create table as below.
-
+use hr; -- set database on which tables has to be created
 Create table Bank_Inventory_pricing 
 ( Product CHAR(15) , 
 Quantity INT, 
@@ -103,6 +109,7 @@ Insert into Bank_branch_PL values ( 'Banglr', 99101, 'SmartSav',   88660070, 790
 
 # 10) Print average of estimated_sale_price upto two decimals from bank_inventory_pricing table.
 /* Solution */
+select round(avg(Estimated_sale_price), 2) as avg_sale from bank_inventory_pricing;
 
 # Question 11:
 # 11. Print Products that are appearing more than once in bank_inventory_pricing and whose purchase_cost is
