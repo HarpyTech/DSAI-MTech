@@ -1,6 +1,6 @@
 use hr;
 
-/*
+/*  TOPIC - 1
 Introduction to Joins using the ER Diagram
 Types of joins
 	Inner Join
@@ -330,4 +330,15 @@ FROM
         AND d.department_id = 80
         JOIN
     jobs j ON jh.job_id = j.job_id;
+    
+/* TOPIC - 2
+Data Integrity 
+	Column Level Intergrity
+		Check Constraint, data type, size
+    Row Level Integrity
+		Candidate Keys, Primary Keys, Unique Key, Foreign Key, Composite Key, Alternative Key
+	Referential Integrity
+		Establishing Parent - Child relationship between tables
+	
+*/
 
