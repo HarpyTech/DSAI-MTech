@@ -222,43 +222,112 @@ select first_name, last_name, department_name from departments cross join employ
  
  
  -- 1.Display the first name, last name, department id and department name, for all employees for departments 80 or 40.
- 
+ SELECT 
+    first_name, last_name, d.department_id, department_name
+FROM
+    employees e
+        JOIN
+    departments d ON d.department_id = e.department_id
+WHERE
+    d.department_id IN (80 , 40);
  
 -- 2. Write a query in SQL to display the full name (first and last name), and salary of those employees who working in
 --  any department located in London. */
-
+SELECT 
+  concat_ws(" ", first_name, last_name) as name, l.city
+FROM
+    employees e
+        JOIN
+    departments d ON e.department_id = d.department_id
+        JOIN
+    locations l ON l.location_id = d.location_id
+WHERE
+    l.city = 'London';
 
  
  
  
  -- 3.	Write a query in SQL to display those employees who contain a letter z to their first name and also display their last name,
  -- department, city, and state province. (3 rows)
-
+SELECT 
+  first_name, last_name, city, department_name, state_province
+FROM
+    employees e
+        JOIN
+    departments d ON e.department_id = d.department_id
+        JOIN
+    locations l ON l.location_id = d.location_id
+    where first_name like "%z%";
 
 -- 4.	Write a query in SQL to display the job title, department id, full name (first and last name) of employee, starting date 
 -- and end date for all the jobs which started on or after 1st January, 1993 and ending with on or before 31 August, 2000. (use employee,job_history)
-
+SELECT 
+    CONCAT_WS(' ', first_name, last_name) AS name,
+    job_title,
+    e.department_id,
+    start_date,
+    end_date
+FROM
+    employees e
+        JOIN
+    job_history jh ON jh.employee_id = e.employee_id
+        JOIN
+    jobs j ON j.job_id = jh.job_id
+WHERE
+    start_date >= '1993-01-01'
+        AND end_date <= '2000-08-31';
 	
 
 -- 5.	.Display employee name if the employee joined before his manager.
-
-
-
+SELECT 
+    CONCAT_WS(' ', e.first_name, e.last_name) AS name
+FROM
+    employees e
+        JOIN
+    employees m ON m.employee_id = e.manager_id
+        AND e.hire_date < m.hire_date;
 
 -- 6 •Write a query in SQL to display the name of the department, average salary and number of employees working in that department who 
 -- got commission. */
-
+SELECT 
+    department_name,
+    AVG(salary) AS avg_salary,
+    COUNT(*) AS employee_count
+FROM
+    employees e
+        JOIN
+    departments d ON e.department_id = d.department_id
+WHERE
+    e.commission_pct IS NOT NULL
+GROUP BY e.department_id;
 
 
 
 -- 7. Write a query in SQL to display the details of jobs which was done by any of the employees who is  earning a salary on and above 12000( use job_history,employee) */
-
+SELECT 
+    j.*
+FROM
+    employees e
+        JOIN
+    job_history jh ON jh.employee_id = e.employee_id
+        JOIN
+    jobs j ON jh.job_id = j.job_id
+WHERE
+    e.salary > 1200;
 
 
 -- 8. Write a query in SQL to display the employee ID, job name, number of days worked in for all those jobs in department 80.(use job, job_history)
-
-
-
-
-
+SELECT 
+    e.employee_id,
+    j.job_title,
+    DATEDIFF(jh.end_date, jh.start_date) AS no_of_days
+FROM
+    employees e
+        JOIN
+    job_history jh ON jh.employee_id = e.employee_id
+        JOIN
+    departments d ON d.department_id = jh.department_id
+        AND d.department_id = 80
+        JOIN
+    jobs j ON jh.job_id = j.job_id;
 
