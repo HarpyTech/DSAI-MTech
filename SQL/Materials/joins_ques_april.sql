@@ -158,17 +158,50 @@ FROM
 #Natural join - primitive join - uses any columns with same name and datatype to perform the join.
 
 #Write a query to find the addresses (location_id, street_address, city, state_province, country_name) of all the departments.
-
+SELECT 
+    l.location_id,
+    street_address,
+    city,
+    state_province,
+    country_name
+FROM
+    departments
+        NATURAL JOIN
+    locations l
+        NATURAL JOIN
+    countries;
 
 #write a query to display job title, firstname , difference between max salary and salary of all employees using natural join 
+SELECT 
+    job_title, first_name, max_salary - salary as salary_difference
+FROM
+    employees
+        NATURAL JOIN
+    jobs;
+
 ------------------------------------------------------------------
  -----------------------------------------------------------------------------------------
 
  #Self join 
 -- Write a query to find the name (first_name, last_name) and hire date of the employees who was hired after 'Jones'.
- 
+SELECT 
+    CONCAT_WS(' ', e1.first_name, e1.last_name) AS full_name,
+    e1.hire_date
+FROM
+    employees e1
+        JOIN
+    employees e2 ON e2.last_name = 'Jones'
+        AND e1.hire_date > e2.hire_date;
 # Write a query to display first and last name ,salary of employees who earn less than the employee whose number is 182 using self join  
--------------------------------------------------------------------
+SELECT 
+    e1.first_name, e1.last_name,
+    e1.salary
+FROM
+    employees e1
+        JOIN
+    employees e2 ON e2.employee_id = 182
+        AND e1.salary < e2.salary;
+-- -----------------------------------------------------------------
 
 /*
 #Cross Join - cartersian product between tables
@@ -177,8 +210,9 @@ FROM
             - cross join   ,   join 
 
 */
-
-
+select * from departments, employees;
+select first_name, last_name, department_name from departments, employees;
+select first_name, last_name, department_name from departments cross join employees;
 ---------------------------------------------------------------------------
 
 
