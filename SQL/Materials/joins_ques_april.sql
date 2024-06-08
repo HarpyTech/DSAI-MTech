@@ -339,6 +339,38 @@ Data Integrity
 		Candidate Keys, Primary Keys, Unique Key, Foreign Key, Composite Key, Alternative Key
 	Referential Integrity
 		Establishing Parent - Child relationship between tables
-	
+	SQL Constraints 
+		NOT NULL, UNIQUE, PRIMARY KEY, FOREIGN KEY, CHECK, DEFAULT
 */
+
+CREATE TABLE student (
+    sid INT PRIMARY KEY,
+    sname VARCHAR(20) UNIQUE,
+    age INT CHECK (age > 18),
+    city VARCHAR(20) DEFAULT 'banglore',
+    phone INT NOT NULL
+);
+
+-- Primary Key
+insert into student values(1, 'john', 23, 'chennai', 98387982); -- done
+insert into student values(1, 'joe', 23, 'chennai', 98387982); -- Error Code: 1062. Duplicate entry '1' for key 'student.PRIMARY'
+-- Unique
+insert into student values(2, 'john', 23, 'chennai', 98387982); -- Error Code: 1062. Duplicate entry 'john' for key 'student.sname'
+insert into student values(2, 'joe', 23, 'chennai', 98387982); -- done
+-- CHECK
+insert into student values(3, 'sam', 14, 'chennai', 98387982); -- Error Code: 3819. Check constraint 'student_chk_1' is violated.
+insert into student values(3, 'sam', 34, 'chennai', 98387982); -- Done
+-- DEFAULT
+insert into student (sid, sname, age, phone) values(4, 'sharma', 34,98387982);
+select * from student where sid = 4; -- '4', 'sharma', '34', 'banglore', '98387982'
+
+-- NOT NULL
+insert into student values(5, 'bhanu', 34, 'chennai', null); -- Error Code: 1048. Column 'phone' cannot be null
+
+-- drop
+alter table student drop primary key; -- dropping of a PK
+alter table student drop index sname; -- drop unique key whare sname is column name
+alter table student drop check check_constraint_name; -- drop check constraint Note: constaint name should match what is defined under DDl
+alter table student alter city drop default; -- drop default constraint
+alter table student modify phone int null; -- not null constraint can't droped it has to be modified
 
