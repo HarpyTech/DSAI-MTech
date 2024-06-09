@@ -209,7 +209,17 @@ WHERE
   -- ----------------------------------------------------------------  
     # sq in having clause 
     #1. find the departments  with average salary greater than the salary of lex.
-  
+  SELECT 
+    AVG(salary), department_id
+FROM
+    employees
+GROUP BY department_id
+HAVING AVG(salary) > (SELECT 
+        salary
+    FROM
+        employees
+    WHERE
+        first_name = 'lex');
     
     
     -- --------------------------------------------------------------
@@ -217,16 +227,22 @@ WHERE
     # sq in update, delete and insert statements
     -- dont execute
     # 1.update the comm_pct of the employees as 0.05 for those who belong to accounts
+    update employees set commission_pct = 0.05 where department_id = 
+    (select department_id from departments where department_name like 'account%');
      
     #2.give 5 % hike to all the employees of sales dept.
-    
+    update employees set salary = salary *1.05 where department_id = 
+		(select department_id from departments where department_name like 'sales%');
     
     # sq in delete 
     #1. delete the records of the employees who belongs to accounts dept
- 
+	delete from employees where department_id =
+		( select department_id from departments where department_name like 'account%');
     # sq in insert 
     -- create a new table - insert - using sq
-   
+   create table emp (empid int, ename varchar(20), salary int);
+   insert into emp select employee_id, first_name, salary from employees where department_id = 90;
+   select * from emp;
  
     -- ----------------------------------------------------
     /*Correlated subquery -inner query will depend on outer query
@@ -237,7 +253,8 @@ WHERE
 
     
     */
-
+	select last_name, salary, department_id from employees o where salary > 
+		(select avg(salary) from employees where department_id = o.department_id);
 
     
     
@@ -245,25 +262,60 @@ WHERE
   # exists -- true if your sq returns atleast one row 
   
   #Find employees who have atleast one person reporting to them .
-  
+  select first_name from employees e1 where exists (
+  select * from employees e2 where e1.employee_id = e2.manager_id);
    # 1 find all the dept which have atleast one employee with salary >4000
+    select department_name from departments d where exists (
+		select * from employees e where d.department_id = e.department_id and salary > 4000);
   
   
+  -- Self Learning
+  explain select department_name from departments d where exists (
+		select * from employees e where d.department_id = e.department_id and salary > 4000);
   #2 list the employees who changed their jobs atleast once. 
-  
-  #3  Display only the department which has employees
-  
+  select first_name from employees e where exists (
+   select * from job_history where  employee_id = e.employee_id );
+  #3  Display only the department which has no employees
+  select department_name from departments d where not exists (
+		select * from employees e where d.department_id = e.department_id);
 -- ================
 -- Extra Practice questions
  -- 1.Find all the employees who have the  highest salary
+ select * from employees where salary = ( select max(salary) from employees);
 -- 2.find employees with second maximum salary 
+select * from employees where salary = ( select salary from employees order by salary desc limit 1,1);
 -- 3.list the employees whose salary is in the range of 10000 and 20000 and working for dept id 10 0r 20 
--- 4.Write a query to display the employee name (first name and last name), employee id and salary of all employees who report to Payam. 
--- 5.Write a query to display all the information of the employees whose salary is within the range of smallest salary and 2500. 
--- 6.Write a query to display the employee number, name (first name and last name), and salary for all employees who earn more than the average salary and who work in a department with any employee with a J in their name. 
+select * from employees where (department_id , salary) = ( 
+	select department_id, salary from employees where salary between 10000 and 20000 and department_id in (10,20));
+-- 4.Write a query to display the employee name (first name and last name), employee id and salary of all employees who report to Payam.
+SELECT 
+    CONCAT_WS(' ', first_name, last_name) AS name,
+    employee_id,
+    salary
+FROM
+    employees e1
+WHERE
+    EXISTS( SELECT 
+            *
+        FROM
+            employees e2
+        WHERE
+            e2.employee_id = e1.manager_id
+                AND first_name = 'Payam')
+        AND first_name != 'Payam'; 
+-- 5.Write a query to display all the information of the employees whose salary is within the range of smallest salary and 2500.
+   
+-- 6.Write a query to display the employee number, name (first name and last name), and salary for all employees 
+-- who earn more than the average salary and who work in a department with any employee with a J in their name. 
+
 -- 7.Display the employee name (first name and last name), employee id, and job_id for all employees whose department location is Toronto. 
--- 8.Write a query to display the employee id, name (first name and last name), salary and the SalaryStatus column with a title HIGH and LOW respectively for those employees whose salary is more than and less than the average salary of all employees. 
+
+-- 8.Write a query to display the employee id, name (first name and last name), salary 
+-- and the SalaryStatus column with a title HIGH and LOW respectively for those employees 
+-- whose salary is more than and less than the average salary of all employees. 
+select salary, case when salary > (select avg(salary) from employees) then 'high' else 'low' end as salaryStatus from employees;
 -- 9.Write a query in SQL to display all the information of those employees who did not have any job in the past. 
+
 -- 10. Write a query in SQL to display the full name (first and last name) of manager who is supervising 4 or more employees. 
 
   
