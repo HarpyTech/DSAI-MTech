@@ -333,14 +333,14 @@ FROM
     
 /* TOPIC - 2
 Data Integrity 
+	SQL Constraints 
+		NOT NULL, UNIQUE, PRIMARY KEY, FOREIGN KEY, CHECK, DEFAULT
 	Column Level Intergrity
 		Check Constraint, data type, size
     Row Level Integrity
 		Candidate Keys, Primary Keys, Unique Key, Foreign Key, Composite Key, Alternative Key
 	Referential Integrity
 		Establishing Parent - Child relationship between tables
-	SQL Constraints 
-		NOT NULL, UNIQUE, PRIMARY KEY, FOREIGN KEY, CHECK, DEFAULT
 */
 
 CREATE TABLE student (
