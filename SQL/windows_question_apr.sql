@@ -194,10 +194,19 @@ sum(salary) over (partition by department_id rows between unbounded preceding an
    
    
    
-   
-   
-   
-   
+-- Refer Performance metrics on misc.js file   
+explain format=JSON select department_id, first_name, 
+sum(salary) over(partition by department_id) as t_salary, 
+sum(salary) over(partition by department_id rows between unbounded preceding and current row) as t11_salary, 
+sum(salary) over(partition by department_id rows between 1 preceding and 1 following) as `11_salary`,
+sum(salary) over(partition by department_id rows between unbounded preceding and unbounded following) as `uu_salary`,
+sum(salary) over(partition by department_id rows between 2 preceding and 3 following) as `23_salary`,
+salary 
+from employees where department_id=50;   
+
+explain format=JSON select * from employees where department_id=50;   
+
+explain format=JSON select count(*) as emp_count, sum(salary) as total_sal from employees where department_id=50;    
    
    
    
