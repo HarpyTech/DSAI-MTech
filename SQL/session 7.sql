@@ -31,4 +31,3 @@ FROM
 -- Horizontal Views are nothing but rowise selection, it includes filter expression with where clause.
 -- Vertical View - is fetching selective columns
 -- 
-insert into
