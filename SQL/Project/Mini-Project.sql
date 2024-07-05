@@ -241,8 +241,63 @@ with
 # 4.	Every supplier supplies specific products to the customers. Create a view of suppliers and total sales
 #       made by their products and write a query on this view to find out top 2 suppliers (using windows function)
 #       in each country by total sales done by the products.
+CREATE VIEW `Total_Sales_By_Product` as
+SELECT DISTINCT
+    `CompanyName`,
+    `Country`,
+    SUM(`Quantity`) OVER (
+        PARTITION BY
+            `Country`,
+            `CompanyName`
+    ) AS Total_Sales
+from
+    orderitem oi
+    JOIN product on oi.`ProductId` = product.`Id`
+    JOIN supplier on product.`SupplierId` = supplier.`Id`;
+
+SELECT
+    ROW_NUMBER() OVER () as `id`,
+    `CompanyName`,
+    `Country`,
+    `Total_Sales`,
+    `row_id`
+FROM (
+        SELECT DISTINCT
+            `CompanyName`, `Country`, `Total_Sales`, ROW_NUMBER() OVER (
+                PARTITION BY
+                    `Country`
+                ORDER BY `Total_Sales` DESC
+            ) AS row_id
+        FROM total_sales_by_product
+    ) temp
+where
+    `row_id` < 3;
 
 # 5.	Find out for which products, UK is dependent on other countries for the supply.
 #       List the countries which are supplying these products in the same list.
-
+WITH
+    product_country AS (
+        SELECT DISTINCT
+            `Country` AS Dependent_Country,
+            `ProductName`,
+            oi.`OrderId`
+        FROM
+            product
+            JOIN supplier on product.`SupplierId` = supplier.`Id`
+            AND `Country` != "UK"
+            JOIN orderitem oi on oi.`ProductId` = product.`Id`
+    ),
+    uk_customers AS (
+        SELECT orders.`Id`, `Country`
+        FROM
+            orders
+            JOIN customer on `CustomerId` = customer.`Id`
+            AND `Country` = "UK"
+    )
+SELECT DISTINCT
+    Dependent_Country,
+    `ProductName`
+FROM
+    product_country
+    JOIN uk_customers AS uk_cs ON uk_cs.Id = product_country.orderId;
 --  End
