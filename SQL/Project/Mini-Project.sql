@@ -161,3 +161,88 @@ group by
 -- OUTPUT: Asian continent - 751, and Non-Asian - 2148
 
 /*  PART - B   */
+use supply_chain;
+
+# 1.	Company sells the product at different discounted rates. Refer actual product price in product table and selling price in the order item table. Write a query to find out total amount saved in each order then display the orders from highest to lowest amount saved.
+SELECT
+    `Id`,
+    `OrderNumber`,
+    `TotalAmount`,
+    actual_price,
+    amount_saved
+from orders as o
+    join (
+        select
+            `OrderId`, sum(`Quantity` * p.`UnitPrice`) as actual_price, sum(`Quantity` * oi.`UnitPrice`) as selling_price, sum(
+                `Quantity` * p.`UnitPrice` - `Quantity` * oi.`UnitPrice`
+            ) as amount_saved
+        from orderitem as oi
+            join product as p on oi.`ProductId` = p.`Id`
+        GROUP BY
+            oi.`OrderId`
+    ) as order_sales on o.`Id` = order_sales.`OrderId`
+ORDER BY order_sales.amount_saved desc;
+
+# 2.	Mr. Kavin want to become a supplier. He got the database of "Richard's Supply" for reference. Help him to pick:
+#       a. List few products that he should choose based on demand.
+#       b. Who will be the competitors for him for the products suggested in above questions.
+SELECT
+    `ProductName`,
+    `Package`,
+    `CompanyName` as Compitetor,
+    `Country`,
+    `ContactName`
+from
+    product
+    join (
+        select `ProductId`, SUM(`Quantity`) as quantity_sold
+        from orderitem
+        GROUP BY
+            `ProductId`
+        ORDER BY quantity_sold desc
+        limit 15
+    ) as ondemand_products on product.`Id` = ondemand_products.`ProductId`
+    JOIN supplier on supplier.`Id` = product.`SupplierId`;
+
+# 3.	Create a combined list to display customers and suppliers details considering the following criteria
+#       ●	Both customer and supplier belong to the same country
+#       ●	Customer who does not have supplier in their country
+#       ●	Supplier who does not have customer in their country
+with
+    customer_with_order as (
+        SELECT
+            orders.`Id` as OrderId,
+            CONCAT(`FirstName`, ' ', `LastName`) AS CustomerName,
+            `City`,
+            `Country`
+        FROM customer
+            JOIN orders on customer.`Id` = orders.`CustomerId`
+    ),
+    product_with_supplier as (
+        SELECT
+            `ProductName`,
+            `SupplierId`,
+            `CompanyName`,
+            `City`,
+            `Country`,
+            product.`Id`
+        FROM product
+            JOIN supplier on product.`SupplierId` = supplier.`Id`
+    ) (
+        SELECT cwo.*, pws.*, IF(
+                cwo.`Country` = pws.`Country`, "Both are from Same Country", 'from Different Country'
+            ) AS `Country_Of_CS_Relation`
+        FROM
+            orderitem as oi
+            JOIN customer_with_order as cwo on oi.`OrderId` = cwo.`OrderId`
+            JOIN product_with_supplier as pws on pws.`Id` = oi.`ProductId`
+    );
+
+# 4.	Every supplier supplies specific products to the customers. Create a view of suppliers and total sales
+#       made by their products and write a query on this view to find out top 2 suppliers (using windows function)
+#       in each country by total sales done by the products.
+
+# 5.	Find out for which products, UK is dependent on other countries for the supply.
+#       List the countries which are supplying these products in the same list.
+
+--  End
