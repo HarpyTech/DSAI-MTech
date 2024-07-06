@@ -160,7 +160,7 @@ group by
     continent;
 -- OUTPUT: Asian continent - 751, and Non-Asian - 2148
 
-/*  PART - B   */
+/*  PART - B -- Execute the SQL Files given to import data   */
 use supply_chain;
 
 # 1.	Company sells the product at different discounted rates. Refer actual product price in product table and selling price in the order item table. Write a query to find out total amount saved in each order then display the orders from highest to lowest amount saved.
