@@ -186,6 +186,7 @@ ORDER BY order_sales.amount_saved desc;
 # 2.	Mr. Kavin want to become a supplier. He got the database of "Richard's Supply" for reference. Help him to pick:
 #       a. List few products that he should choose based on demand.
 #       b. Who will be the competitors for him for the products suggested in above questions.
+# Note: Top 15 records are listed
 SELECT
     `ProductName`,
     `Package`,
@@ -208,13 +209,15 @@ from
 #       ●	Both customer and supplier belong to the same country
 #       ●	Customer who does not have supplier in their country
 #       ●	Supplier who does not have customer in their country
+# Note: Here the Schema not adiquate to determine the last two points above, considering both as diffrent country
 with
     customer_with_order as (
         SELECT
             orders.`Id` as OrderId,
+            `CustomerId`,
             CONCAT(`FirstName`, ' ', `LastName`) AS CustomerName,
-            `City`,
-            `Country`
+            `City` as customer_city,
+            `Country` as customer_country
         FROM customer
             JOIN orders on customer.`Id` = orders.`CustomerId`
     ),
@@ -223,19 +226,50 @@ with
             `ProductName`,
             `SupplierId`,
             `CompanyName`,
-            `City`,
-            `Country`,
+            `City` as supplier_city,
+            `Country` as supplier_country,
             product.`Id`
         FROM product
             JOIN supplier on product.`SupplierId` = supplier.`Id`
-    ) (
+    ),
+    customer_supplier_country AS (
         SELECT cwo.*, pws.*, IF(
-                cwo.`Country` = pws.`Country`, "Both are from Same Country", 'from Different Country'
-            ) AS `Country_Of_CS_Relation`
+                cwo.`customer_country` = pws.`supplier_country`, "Same", 'Different'
+            ) AS `Country`
         FROM
             orderitem as oi
             JOIN customer_with_order as cwo on oi.`OrderId` = cwo.`OrderId`
             JOIN product_with_supplier as pws on pws.`Id` = oi.`ProductId`
+    ) (
+        SELECT
+            `CustomerId`,
+            `SupplierId`,
+            CustomerName,
+            customer_country,
+            supplier_country,
+            `CompanyName`,
+            `Country` AS origin_country
+        FROM customer_supplier_country
+        WHERE
+            `Country` = 'Same'
+        GROUP BY
+            `SupplierId`,
+            `CustomerId`
+        UNION
+        SELECT
+            `CustomerId`,
+            `SupplierId`,
+            CustomerName,
+            customer_country,
+            supplier_country,
+            `CompanyName`,
+            `Country` AS origin_country
+        FROM customer_supplier_country
+        WHERE
+            `Country` = 'Different'
+        GROUP BY
+            `SupplierId`,
+            `CustomerId`
     );
 
 # 4.	Every supplier supplies specific products to the customers. Create a view of suppliers and total sales
@@ -254,7 +288,7 @@ from
     orderitem oi
     JOIN product on oi.`ProductId` = product.`Id`
     JOIN supplier on product.`SupplierId` = supplier.`Id`;
-
+# Top 2 suppliers of Each country
 SELECT
     ROW_NUMBER() OVER () as `id`,
     `CompanyName`,
