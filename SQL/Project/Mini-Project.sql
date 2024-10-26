@@ -164,29 +164,32 @@ group by
 use supply_chain;
 
 # 1.	Company sells the product at different discounted rates. Refer actual product price in product table and selling price in the order item table. Write a query to find out total amount saved in each order then display the orders from highest to lowest amount saved.
-SELECT
-    `Id`,
-    `OrderNumber`,
-    `TotalAmount`,
-    actual_price,
-    amount_saved
-from orders as o
-    join (
-        select
-            `OrderId`, sum(`Quantity` * p.`UnitPrice`) as actual_price, sum(`Quantity` * oi.`UnitPrice`) as selling_price, sum(
-                `Quantity` * p.`UnitPrice` - `Quantity` * oi.`UnitPrice`
-            ) as amount_saved
-        from orderitem as oi
-            join product as p on oi.`ProductId` = p.`Id`
-        GROUP BY
-            oi.`OrderId`
-    ) as order_sales on o.`Id` = order_sales.`OrderId`
-ORDER BY order_sales.amount_saved desc;
+CREATE VIEW `Profits_Discounts` AS (
+    SELECT
+        `Id`,
+        `OrderNumber`,
+        `TotalAmount`,
+        actual_price,
+        amount_saved
+    from orders as o
+        join (
+            select
+                `OrderId`, sum(`Quantity` * p.`UnitPrice`) as actual_price, sum(`Quantity` * oi.`UnitPrice`) as selling_price, sum(
+                    `Quantity` * p.`UnitPrice` - `Quantity` * oi.`UnitPrice`
+                ) as amount_saved
+            from orderitem as oi
+                join product as p on oi.`ProductId` = p.`Id`
+            GROUP BY
+                oi.`OrderId`
+        ) as order_sales on o.`Id` = order_sales.`OrderId`
+    ORDER BY order_sales.amount_saved desc
+);
 
 # 2.	Mr. Kavin want to become a supplier. He got the database of "Richard's Supply" for reference. Help him to pick:
 #       a. List few products that he should choose based on demand.
 #       b. Who will be the competitors for him for the products suggested in above questions.
 # Note: Top 15 records are listed
+CREATE VIEW `Products_In_Demand` AS
 SELECT
     `ProductName`,
     `Package`,
@@ -205,6 +208,11 @@ from
     ) as ondemand_products on product.`Id` = ondemand_products.`ProductId`
     JOIN supplier on supplier.`Id` = product.`SupplierId`;
 
+CREATE VIEW `VIEW_NAME` AS < SELECT - QUERY >
+
+select * from products_in_demand;
+
+select * from total_sales_by_product;
 # 3.	Create a combined list to display customers and suppliers details considering the following criteria
 #       ●	Both customer and supplier belong to the same country
 #       ●	Customer who does not have supplier in their country
@@ -272,7 +280,17 @@ with
             `CustomerId`
     );
 
-# 4.	Every supplier supplies specific products to the customers. Create a view of suppliers and total sales
+--
+select * from orderitem;
+
+select * from product;
+
+select * from customer;
+
+select * from supplier;
+
+select * from orders;
+# 4.	Every supplier supplies specific products to the customers. Select suppliers and total sales
 #       made by their products and write a query on this view to find out top 2 suppliers (using windows function)
 #       in each country by total sales done by the products.
 CREATE VIEW `Total_Sales_By_Product` as
