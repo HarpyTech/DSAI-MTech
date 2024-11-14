@@ -1,0 +1,715 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 166,
+   "id": "5a2121d4-87f8-40f3-bb52-b88c8cbb7db8",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "import pandas as pd\n",
+    "import matplotlib.pyplot as plt\n",
+    "\n",
+    "import seaborn as sns\n",
+    "from warnings import filterwarnings\n",
+    "filterwarnings('ignore')\n",
+    "\n",
+    "from sklearn.model_selection import train_test_split\n",
+    "pd.options.display.max_columns = None\n",
+    "\n",
+    "import statsmodels\n",
+    "import statsmodels.api as sm\n",
+    "from scipy import stats\n",
+    "from sklearn.metrics import mean_squared_error\n",
+    "from sklearn.metrics import mean_absolute_error\n",
+    "\n",
+    "from sklearn.linear_model import LinearRegression\n",
+    "\n",
+    "from sklearn.preprocessing import StandardScaler \n",
+    "\n",
+    "from sklearn.linear_model import SGDRegressor\n",
+    "from sklearn.linear_model import Ridge\n",
+    "from sklearn.linear_model import Lasso\n",
+    "from sklearn.linear_model import ElasticNet\n",
+    "from sklearn.model_selection import GridSearchCV\n",
+    "from sklearn.model_selection import LeaveOneOut\n",
+    "from sklearn.model_selection import cross_val_score\n",
+    "from sklearn.model_selection import KFold"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 168,
+   "id": "0ab202fa-fbfd-4b92-aa66-2cee91c00835",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "df_train = pd.read_csv('train_(2)_(1)_(1).csv')\n",
+    "df_test = pd.read_csv('test_(2)_(1).csv')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 170,
+   "id": "7594b571-1029-4118-8e15-bcf3a19e1c89",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>ID</th>\n",
+       "      <th>area_type</th>\n",
+       "      <th>availability</th>\n",
+       "      <th>location</th>\n",
+       "      <th>size</th>\n",
+       "      <th>society</th>\n",
+       "      <th>total_sqft</th>\n",
+       "      <th>bath</th>\n",
+       "      <th>balcony</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>0</td>\n",
+       "      <td>Super built-up  Area</td>\n",
+       "      <td>Ready To Move</td>\n",
+       "      <td>Chamrajpet</td>\n",
+       "      <td>2 BHK</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>650</td>\n",
+       "      <td>1.0</td>\n",
+       "      <td>1.0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>1</td>\n",
+       "      <td>Super built-up  Area</td>\n",
+       "      <td>Ready To Move</td>\n",
+       "      <td>7th Phase JP Nagar</td>\n",
+       "      <td>3 BHK</td>\n",
+       "      <td>SrncyRe</td>\n",
+       "      <td>1370</td>\n",
+       "      <td>2.0</td>\n",
+       "      <td>1.0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>2</td>\n",
+       "      <td>Super built-up  Area</td>\n",
+       "      <td>Ready To Move</td>\n",
+       "      <td>Whitefield</td>\n",
+       "      <td>3 BHK</td>\n",
+       "      <td>AjhalNa</td>\n",
+       "      <td>1725</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>2.0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>3</td>\n",
+       "      <td>Built-up  Area</td>\n",
+       "      <td>Ready To Move</td>\n",
+       "      <td>Jalahalli</td>\n",
+       "      <td>2 BHK</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>1000</td>\n",
+       "      <td>2.0</td>\n",
+       "      <td>0.0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>4</td>\n",
+       "      <td>Plot  Area</td>\n",
+       "      <td>Ready To Move</td>\n",
+       "      <td>TC Palaya</td>\n",
+       "      <td>1 Bedroom</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>1350</td>\n",
+       "      <td>1.0</td>\n",
+       "      <td>0.0</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "   ID             area_type   availability            location       size  \\\n",
+       "0   0  Super built-up  Area  Ready To Move          Chamrajpet      2 BHK   \n",
+       "1   1  Super built-up  Area  Ready To Move  7th Phase JP Nagar      3 BHK   \n",
+       "2   2  Super built-up  Area  Ready To Move          Whitefield      3 BHK   \n",
+       "3   3        Built-up  Area  Ready To Move           Jalahalli      2 BHK   \n",
+       "4   4            Plot  Area  Ready To Move           TC Palaya  1 Bedroom   \n",
+       "\n",
+       "   society total_sqft  bath  balcony  \n",
+       "0      NaN        650   1.0      1.0  \n",
+       "1  SrncyRe       1370   2.0      1.0  \n",
+       "2  AjhalNa       1725   3.0      2.0  \n",
+       "3      NaN       1000   2.0      0.0  \n",
+       "4      NaN       1350   1.0      0.0  "
+      ]
+     },
+     "execution_count": 170,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df_test.head()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 172,
+   "id": "fc8cd0c3-1617-4133-ae29-9480b8d58510",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "ID                int64\n",
+       "area_type        object\n",
+       "availability     object\n",
+       "location         object\n",
+       "size             object\n",
+       "society          object\n",
+       "total_sqft       object\n",
+       "bath            float64\n",
+       "balcony         float64\n",
+       "dtype: object"
+      ]
+     },
+     "execution_count": 172,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df_test.dtypes"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 174,
+   "id": "72eb8213-e981-458c-93af-6a2439919c62",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>ID</th>\n",
+       "      <th>bath</th>\n",
+       "      <th>balcony</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>count</th>\n",
+       "      <td>2664.000000</td>\n",
+       "      <td>2656.000000</td>\n",
+       "      <td>2559.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>mean</th>\n",
+       "      <td>1331.500000</td>\n",
+       "      <td>2.700678</td>\n",
+       "      <td>1.594764</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>std</th>\n",
+       "      <td>769.174883</td>\n",
+       "      <td>1.297112</td>\n",
+       "      <td>0.800891</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>min</th>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>25%</th>\n",
+       "      <td>665.750000</td>\n",
+       "      <td>2.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>50%</th>\n",
+       "      <td>1331.500000</td>\n",
+       "      <td>2.000000</td>\n",
+       "      <td>2.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>75%</th>\n",
+       "      <td>1997.250000</td>\n",
+       "      <td>3.000000</td>\n",
+       "      <td>2.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>max</th>\n",
+       "      <td>2663.000000</td>\n",
+       "      <td>18.000000</td>\n",
+       "      <td>3.000000</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "                ID         bath      balcony\n",
+       "count  2664.000000  2656.000000  2559.000000\n",
+       "mean   1331.500000     2.700678     1.594764\n",
+       "std     769.174883     1.297112     0.800891\n",
+       "min       0.000000     1.000000     0.000000\n",
+       "25%     665.750000     2.000000     1.000000\n",
+       "50%    1331.500000     2.000000     2.000000\n",
+       "75%    1997.250000     3.000000     2.000000\n",
+       "max    2663.000000    18.000000     3.000000"
+      ]
+     },
+     "execution_count": 174,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df_test.describe()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 176,
+   "id": "fc8dc01f-4df9-4664-8caf-206e71ce1427",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "ID                 0\n",
+       "area_type          0\n",
+       "availability       0\n",
+       "location           0\n",
+       "size               2\n",
+       "society         1074\n",
+       "total_sqft         0\n",
+       "bath               8\n",
+       "balcony          105\n",
+       "dtype: int64"
+      ]
+     },
+     "execution_count": 176,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "missing_values = df_test.isnull().sum()\n",
+    "missing_values"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 178,
+   "id": "a5f2e053-bdf8-46c8-80c4-13eef3510fa9",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Total</th>\n",
+       "      <th>Percent</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>society</th>\n",
+       "      <td>1074</td>\n",
+       "      <td>40.315315</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>balcony</th>\n",
+       "      <td>105</td>\n",
+       "      <td>3.941441</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>bath</th>\n",
+       "      <td>8</td>\n",
+       "      <td>0.300300</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>size</th>\n",
+       "      <td>2</td>\n",
+       "      <td>0.075075</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>ID</th>\n",
+       "      <td>0</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>area_type</th>\n",
+       "      <td>0</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>availability</th>\n",
+       "      <td>0</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>location</th>\n",
+       "      <td>0</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>total_sqft</th>\n",
+       "      <td>0</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "              Total    Percent\n",
+       "society        1074  40.315315\n",
+       "balcony         105   3.941441\n",
+       "bath              8   0.300300\n",
+       "size              2   0.075075\n",
+       "ID                0   0.000000\n",
+       "area_type         0   0.000000\n",
+       "availability      0   0.000000\n",
+       "location          0   0.000000\n",
+       "total_sqft        0   0.000000"
+      ]
+     },
+     "execution_count": 178,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "total = df_test.isnull().sum().sort_values(ascending = False)\n",
+    "percent = ((df_test.isnull().sum()/df_test.shape[0]*100))\n",
+    "percent = percent.sort_values(ascending =False)\n",
+    "missing_data = pd.concat([total,percent],axis=1,keys=['Total','Percent'])\n",
+    "missing_data"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 180,
+   "id": "8905a00c-7e91-4124-915c-fea9bf1336f6",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "#need to convert area to num as its in object\n",
+    "\n",
+    "def convert_sqft_to_num(x):\n",
+    "    try:\n",
+    "        if '-' in x: # range values split \n",
+    "            nums = x.split('-')\n",
+    "            return (float(nums[0]) + float(nums[1])) / 2\n",
+    "        return float(x)\n",
+    "    except:\n",
+    "        return None"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 182,
+   "id": "671e846b-fe75-41dd-b058-e53f8bfd0490",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "df_train['total_sqft'] = df_train['total_sqft'].apply(convert_sqft_to_num)\n",
+    "df_test['total_sqft'] = df_test['total_sqft'].apply(convert_sqft_to_num)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 184,
+   "id": "6a9b0d8e-8329-492d-b85f-3eb06832328e",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "df_train['bath'].fillna(df_train['bath'].median(), inplace=True)\n",
+    "df_train['balcony'].fillna(0, inplace=True)\n",
+    "df_test['bath'].fillna(df_test['bath'].median(), inplace=True)\n",
+    "df_test['balcony'].fillna(0, inplace=True)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 186,
+   "id": "1607260c-42a0-4f8a-a425-1d28a7e62ddf",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "df_train['total_sqft'].fillna(df_train['total_sqft'].median(), inplace=True)\n",
+    "df_test['total_sqft'].fillna(df_test['total_sqft'].median(), inplace=True)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 188,
+   "id": "9a000df0-adcb-44d9-b06b-39470d8686e1",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "#catagorical to numerical\n",
+    "df_train_encoded = pd.get_dummies(df_train, columns=['area_type', 'location', 'size'], drop_first=True)\n",
+    "df_test_encoded = pd.get_dummies(df_test, columns=['area_type', 'location', 'size'], drop_first=True)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 190,
+   "id": "71517b6f-3b83-42cd-a63b-2775ada3ed72",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "df_test_encoded = df_test_encoded.reindex(columns=df_train_encoded.columns, fill_value=0)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 192,
+   "id": "7cbb13a4-2a8f-4f0c-bb3e-ef117ad49a07",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "X_train = df_train_encoded.drop(['price', 'ID', 'society', 'availability'], axis=1)\n",
+    "y_train = df_train_encoded['price']"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 194,
+   "id": "8e37df9f-ac4f-40f5-b72c-9ebd96cb7467",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "X_test = df_test_encoded.drop(['price', 'ID', 'society', 'availability'], axis=1)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 196,
+   "id": "acee0711-9ae7-4c89-973d-0d43544b3ee8",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>#sk-container-id-5 {color: black;background-color: white;}#sk-container-id-5 pre{padding: 0;}#sk-container-id-5 div.sk-toggleable {background-color: white;}#sk-container-id-5 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-container-id-5 label.sk-toggleable__label-arrow:before {content: \"▸\";float: left;margin-right: 0.25em;color: #696969;}#sk-container-id-5 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-container-id-5 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-container-id-5 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-container-id-5 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-container-id-5 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-container-id-5 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: \"▾\";}#sk-container-id-5 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-5 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-5 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-container-id-5 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-container-id-5 div.sk-estimator:hover {background-color: #d4ebff;}#sk-container-id-5 div.sk-parallel-item::after {content: \"\";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-container-id-5 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-5 div.sk-serial::before {content: \"\";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: 0;}#sk-container-id-5 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;position: relative;}#sk-container-id-5 div.sk-item {position: relative;z-index: 1;}#sk-container-id-5 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;position: relative;}#sk-container-id-5 div.sk-item::before, #sk-container-id-5 div.sk-parallel-item::before {content: \"\";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: -1;}#sk-container-id-5 div.sk-parallel-item {display: flex;flex-direction: column;z-index: 1;position: relative;background-color: white;}#sk-container-id-5 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-container-id-5 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-container-id-5 div.sk-parallel-item:only-child::after {width: 0;}#sk-container-id-5 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;}#sk-container-id-5 div.sk-label label {font-family: monospace;font-weight: bold;display: inline-block;line-height: 1.2em;}#sk-container-id-5 div.sk-label-container {text-align: center;}#sk-container-id-5 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-container-id-5 div.sk-text-repr-fallback {display: none;}</style><div id=\"sk-container-id-5\" class=\"sk-top-container\"><div class=\"sk-text-repr-fallback\"><pre>LinearRegression()</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br />On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class=\"sk-container\" hidden><div class=\"sk-item\"><div class=\"sk-estimator sk-toggleable\"><input class=\"sk-toggleable__control sk-hidden--visually\" id=\"sk-estimator-id-5\" type=\"checkbox\" checked><label for=\"sk-estimator-id-5\" class=\"sk-toggleable__label sk-toggleable__label-arrow\">LinearRegression</label><div class=\"sk-toggleable__content\"><pre>LinearRegression()</pre></div></div></div></div></div>"
+      ],
+      "text/plain": [
+       "LinearRegression()"
+      ]
+     },
+     "execution_count": 196,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "model = LinearRegression()\n",
+    "model.fit(X_train, y_train)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 197,
+   "id": "20d5eeae-e3ca-4048-9010-594ad1c7096e",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "test_predictions = model.predict(X_test)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 198,
+   "id": "70b346db-2e7e-4b77-9790-c1607be69f6c",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "df_test_encoded['price'] = test_predictions"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 200,
+   "id": "11f71d44-142a-4a62-abe2-d9e243fe2a9b",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "        ID       price\n",
+      "0        0  165.100777\n",
+      "1        1   76.518275\n",
+      "2        2  110.320102\n",
+      "3        3   44.614849\n",
+      "4        4   48.848177\n",
+      "...    ...         ...\n",
+      "2659  2659  250.651294\n",
+      "2660  2660  361.688402\n",
+      "2661  2661   36.007866\n",
+      "2662  2662  301.320989\n",
+      "2663  2663   15.460788\n",
+      "\n",
+      "[2664 rows x 2 columns]\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(df_test_encoded[['ID', 'price']])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 204,
+   "id": "bf7fcb6f-c42f-404d-b5be-e754f089c6d5",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "df_test_encoded[['ID', 'price']].to_csv('test_prediction.csv', index=False)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "75069a4e-d7a8-4d3d-90a0-b520ce91d2f2",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "918a4bd2-271a-4648-aecf-75cb838b521c",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.11.7"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
